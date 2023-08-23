@@ -18,7 +18,7 @@ The eGRAM program identifies gene modules comprising co-expressed genes and thei
 5. **OS**: the eGRAM code has been tested on Linux system.
 
 # Data
-1. **data**  --  the TPM-normalized gene expression matrixes of the hippocampus of patients with Alzheimer's disease and the hippocampus of mouse model for Alzheimer's disease.
+1. **data**  --  the TPM-normalized gene expression matrixes derived from patients with Alzheimer's disease (in the lateral temporal lobe, N=12) and mouse models of Alzheimer's disease (in the hippocampus, N=14).
 
 2. **HS_lncRNA_DBS_matrix**  --  the DNA binding matrix of human-specific lncRNAs.
 
