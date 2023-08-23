@@ -18,7 +18,7 @@ The eGRAM program identifies gene modules comprising co-expressed genes and thei
 5. **OS**: the eGRAM code has been tested on Linux system.
 
 # Data
-1. **logTPM_matrix**  --  the log-transformed gene expression matrixes of the 13 human GTEx brain regions and the mouse brain.
+1. **data**  --  the TPM-normalized gene expression matrixes of the hippocampus of patients with Alzheimer's disease and the hippocampus of mouse model for Alzheimer's disease.
 
 2. **HS_lncRNA_DBS_matrix**  --  the DNA binding matrix of human-specific lncRNAs.
 

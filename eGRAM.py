@@ -324,21 +324,22 @@ def pathway_analysis(module,
 		
 	pathway_sorted = []
 	for pathID, pathNam, hitGenes, pVal, fdr in results:
-		if fdr < 0.05:
-			pathway_sorted.append((fdr, pathNam, pathID, hitGenes))
+		if fdr < 0.01:
+			pathway_sorted.append((fdr, pVal, pathNam, pathID, hitGenes))
 	pathway_sorted.sort()
 	
 	if pathway_sorted:
-		topFDR, topPathway, topPathID, hitGenes = pathway_sorted[0]
+		topFDR, topPVal, topPathway, topPathID, hitGenes = pathway_sorted[0]
 		topPathCateg = pathway_categ[topPathway]
-		return topFDR, topPathway, topPathID, topPathCateg, hitGenes
+		return topFDR, topPVal, topPathway, topPathID, topPathCateg, hitGenes
 	else:
-		return 'NA', 'NA', 'NA', 'NA', 'NA'
+		return 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'
 
 	
 def identify_module(exp_df, 
 					affinity, 
-					moduleFile, 
+					moduleFile,
+					species,					
 					kegg_gene, 
 					kegg_term, 
 					kegg_link,
@@ -451,18 +452,19 @@ def identify_module(exp_df,
 						target_toWrite_str = ' | '.join(module)
 						
 						#top enriched pathways
-						topFDR, topPathway, topPathID, topPathCateg, hitGenes = pathway_analysis(module, 
-																								 kegg_gene, 
-																								 kegg_term, 
-																								 kegg_link, 
-																								 pathway_categ, 
-																								 totalGeneNum)
+						topFDR, topPVal, topPathway, topPathID, topPathCateg, hitGenes = pathway_analysis(module, 
+																										  kegg_gene, 
+																										  kegg_term, 
+																										  kegg_link, 
+																										  pathway_categ, 
+																										  totalGeneNum)
 						
 						modules.append((lncrna_toWrite_str, 
 									    target_toWrite_str, 
 										topPathway, 
 										topPathID, 
-										topFDR, 
+										topFDR,
+										topPVal,
 										topPathCateg, 
 										hitGenes))
 						
@@ -474,29 +476,37 @@ def identify_module(exp_df,
 		
 	#write results
 	with open(moduleFile, 'w') as f:
-		f.write('\t'.join(['Module', 
+		f.write('\t'.join(['Species',
+						   'Module', 
 						   'LncRNA(A=activator, I=inhibitor, N=not determined)',
 						   'Target gene',
 						   'Top enriched pathway',
 						   'PathwayID',
+						   'P value(hypergeometric distribution test)',
 						   'FDR',
-						   'Functional category'])
+						   'Functional category',
+						   'Hit genes'])
 						   +'\n')
 		moduleNum = 0
-		for lncrna_toWrite_str, target_toWrite_str, topPathway, topPathID, topFDR, topPathCateg, hitGenes in modules:
+		for lncrna_toWrite_str, target_toWrite_str, topPathway, topPathID, topFDR, topPVal, topPathCateg, hitGenes in modules:
 			moduleNum += 1
-			moduleName = 'Module_'+str(moduleNum)
-			f.write('\t'.join([moduleName,
+			if species == 'human':
+				moduleName = 'Module_H'+str(moduleNum)
+			elif species == 'mouse':
+				moduleName = 'Module_M'+str(moduleNum)
+			f.write('\t'.join([species,
+							   moduleName,
 							   lncrna_toWrite_str, 
 							   target_toWrite_str, 
 							   topPathway, 
 							   topPathID,
+							   str(topPVal),
 							   str(topFDR),
 							   topPathCateg])
 							   +'\n')
 							   
 				
-def generate_cytosc_file(moduleFile, tissue, cytoscapeDir):
+def generate_cytosc_file(moduleFile, species, cytoscapeDir):
 	'''
 	Generate the input files for module visulization using cytoscape.
 
@@ -506,8 +516,9 @@ def generate_cytosc_file(moduleFile, tissue, cytoscapeDir):
 		fileName = moduleFile.split('/')[-1]
 	else:
 		fileName = moduleFile
-	category_show = set(['Nervous system',
-						 'Neurodegenerative disease',
+	category_show = set(['Metabolism',
+						 'Immune system',
+						 'Nervous system',
 						 'NA'])
 	f_re1 = open(cytoscapeDir+fileName+'_egde', 'w')
 	f_re1.write('\t'.join(['lncRNA', 'module', 'weight'])+'\n')
@@ -518,10 +529,10 @@ def generate_cytosc_file(moduleFile, tissue, cytoscapeDir):
 		f_mod.readline()
 		for line in f_mod:
 			cols = line.strip('\n').split('\t')
-			moduleID = cols[0]
-			lncrnas = cols[1]
-			category = cols[-1].split(':')[0]
-			pathway = cols[3]
+			moduleID = cols[1]
+			lncrnas = cols[2]
+			category = cols[8].split(':')[0]
+			pathway = cols[4]
 			for lncrna in lncrnas.split(' | '):
 				lncName = lncrna[:lncrna.find('(')]
 				if '(A)' in lncrna:
@@ -530,12 +541,12 @@ def generate_cytosc_file(moduleFile, tissue, cytoscapeDir):
 					weight = '-1'
 				else:
 					weight = 'NA'
-				f_re1.write('\t'.join([lncName, tissue.split(' (')[0]+'_'+moduleID, weight])+'\n')
+				f_re1.write('\t'.join([lncName, species+'_'+moduleID, weight])+'\n')
 				allLncs.add(lncName)
 			if category in category_show:
-				f_re2.write('\t'.join([tissue.split(' (')[0]+'_'+moduleID, pathway])+'\n')
+				f_re2.write('\t'.join([species+'_'+moduleID, pathway])+'\n')
 			else:
-				f_re2.write('\t'.join([tissue.split(' (')[0]+'_'+moduleID, 'Unknown'])+'\n')
+				f_re2.write('\t'.join([species+'_'+moduleID, 'Other'])+'\n')
 		for lncName in allLncs:
 			f_re2.write('\t'.join([lncName, 'LncRNA_regulator'])+'\n')
 	f_re1.close()
@@ -543,75 +554,51 @@ def generate_cytosc_file(moduleFile, tissue, cytoscapeDir):
 					
 					
 if __name__ == '__main__':
-	species = 'human'
-	#species = 'mouse'
-	
-	if species == 'human':
-		bindFile = 'HS_lncRNA_DBS_matrix'
-		keggGeneFile = 'PathwayAnnotation/keggGene-hsa'
-		keggPathFile = 'PathwayAnnotation/keggPathway-hsa'
-		keggLinkFile = 'PathwayAnnotation/keggLink-hsa'
-		gtfFile = 'Homo_sapiens.GRCh38.101.gtf'
-	elif species == 'mouse':
-		bindFile = 'MS_lncRNA_DBS_matrix'
-		keggGeneFile = 'PathwayAnnotation/keggGene-mmu'
-		keggPathFile = 'PathwayAnnotation/keggPathway-mmu'
-		keggLinkFile = 'PathwayAnnotation/keggLink-mmu'
-		gtfFile = 'Mus_musculus.GRCm38.101.gtf'
-	
-	categoryFile = 'PathwayAnnotation/Kegg_category'
+	for species in ['human', 'mouse']:
+		affiThres1=100	
+		affiThres2=60
+		moduleSize=5
+		corrThres=0.5
+		resultDir = 'moduleResults/'
+		cytoscapeDir = 'cytoscapeFile/'
+		
+		if not os.path.exists(resultDir):
+			os.mkdir(resultDir)
+		if not os.path.exists(cytoscapeDir):
+			os.mkdir(cytoscapeDir)
+		
+		if species == 'human':
+			bindFile = 'HS_lncRNA_DBS_matrix'
+			keggGeneFile = 'PathwayAnnotation/keggGene-hsa'
+			keggPathFile = 'PathwayAnnotation/keggPathway-hsa'
+			keggLinkFile = 'PathwayAnnotation/keggLink-hsa'
+			expFile = 'data/human_AD_TPM'
+			moduleFile = resultDir + 'HSlnc_module'
+			#gtfFile = 'Homo_sapiens.GRCh38.101.gtf'
+		elif species == 'mouse':
+			bindFile = 'MS_lncRNA_DBS_matrix'
+			keggGeneFile = 'PathwayAnnotation/keggGene-mmu'
+			keggPathFile = 'PathwayAnnotation/keggPathway-mmu'
+			keggLinkFile = 'PathwayAnnotation/keggLink-mmu'
+			expFile = 'data/mouse_AD_TPM'
+			moduleFile = resultDir + 'MSlnc_module'
+			#gtfFile = 'Mus_musculus.GRCm38.101.gtf'
+		
+		categoryFile = 'PathwayAnnotation/Kegg_category'
 
-	kegg_gene, kegg_term, kegg_link, pathway_categ, totalGeneNum = read_kegg(keggGeneFile, keggPathFile, keggLinkFile, categoryFile)
-	
-	gene_symbols, protein_genes = read_gtf(gtfFile)
-	
-	affinity, targets = read_binding(bindFile, protein_genes)
-	
-	if species == 'human':
-		affiThres1=100
-		tissues = ['human_Brain-Amygdala',
-				   'human_Brain-Anterior cingulate cortex (BA24)',
-				   'human_Brain-Caudate (basal ganglia)',
-				   'human_Brain-Cerebellar Hemisphere',
-				   'human_Brain-Cerebellum',
-				   'human_Brain-Cortex',
-				   'human_Brain-Frontal Cortex (BA9)',
-				   'human_Brain-Hippocampus',
-				   'human_Brain-Hypothalamus',
-				   'human_Brain-Nucleus accumbens (basal ganglia)',
-				   'human_Brain-Putamen (basal ganglia)',
-				   'human_Brain-Spinal cord (cervical c-1)',
-				   'human_Brain-Substantia nigra']
-	elif species== 'mouse':
-		#binding affinity values of MS lncRNAs are generally larger than those of HS lncRNAs, 
-		#there are far more MS lncRNAs than HS lncRNAs
-		#so a more strict threshold should be used
-		affiThres1=150
-		tissues = ['mouse_Brain']
+		kegg_gene, kegg_term, kegg_link, pathway_categ, totalGeneNum = read_kegg(keggGeneFile, keggPathFile, keggLinkFile, categoryFile)
 		
-	affiThres2=60
-	moduleSize=10
-	corrThres=0.3
-	resultDir = 'moduleResults/'
-	tpmDir = 'logTPM_matrix/'
-	cytoscapeDir = 'cytoscapeFile/'
-	
-	if not os.path.exists(resultDir):
-		os.mkdir(resultDir)
-	if not os.path.exists(cytoscapeDir):
-		os.mkdir(cytoscapeDir)
-	
-	for tissue in tissues:
-		print(tissue, 'calculating...')
-		expFile = tpmDir + tissue
+		#gene_symbols, protein_genes = read_gtf(gtfFile)
 		
-		moduleFile = resultDir + tissue
+		affinity, targets = read_binding(bindFile, kegg_gene)
 		
 		exp_df = read_exp(expFile, targets, affinity)
+		print(exp_df)
 		
 		identify_module(exp_df, 
 						affinity, 
-						moduleFile, 
+						moduleFile,
+						species,
 						kegg_gene, 
 						kegg_term, 
 						kegg_link,
@@ -623,4 +610,4 @@ if __name__ == '__main__':
 						moduleSize,
 						corrThres)
 						
-		generate_cytosc_file(moduleFile, tissue, cytoscapeDir)
+		generate_cytosc_file(moduleFile, species, cytoscapeDir)
