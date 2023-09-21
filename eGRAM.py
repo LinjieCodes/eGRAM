@@ -484,8 +484,7 @@ def identify_module(exp_df,
 						   'PathwayID',
 						   'P value(hypergeometric distribution test)',
 						   'FDR',
-						   'Functional category',
-						   'Hit genes'])
+						   'Functional category'])
 						   +'\n')
 		moduleNum = 0
 		for lncrna_toWrite_str, target_toWrite_str, topPathway, topPathID, topFDR, topPVal, topPathCateg, hitGenes in modules:
