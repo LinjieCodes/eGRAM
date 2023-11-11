@@ -381,11 +381,12 @@ def identify_module(exp_df,
 	lnc_target_explored = set()
 	
 	allExpTargets = set(exp_df.index) - set(exp_lnc_affinity.keys())
+	allExpTargets_sorted = sorted(list(allExpTargets))
 	
 	corr_df = cal_corr(exp_df)
 	
 	modules = []
-	for gene in allExpTargets:
+	for gene in allExpTargets_sorted:
 		#lncrnas strongly binding to the gene
 		lncSet = set()
 		for lncrna in exp_lnc_affinity:
