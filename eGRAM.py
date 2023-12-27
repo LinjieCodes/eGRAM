@@ -3,6 +3,7 @@ import pandas as pd
 import re
 import os
 from scipy.stats import hypergeom
+import sys, getopt
 
 
 def read_gtf(gtfFile):
@@ -554,60 +555,76 @@ def generate_cytosc_file(moduleFile, species, cytoscapeDir):
 					
 					
 if __name__ == '__main__':
-	for species in ['human', 'mouse']:
-		affiThres1=100	
-		affiThres2=60
-		moduleSize=5
-		corrThres=0.5
-		resultDir = 'moduleResults/'
-		cytoscapeDir = 'cytoscapeFile/'
-		
-		if not os.path.exists(resultDir):
-			os.mkdir(resultDir)
-		if not os.path.exists(cytoscapeDir):
-			os.mkdir(cytoscapeDir)
-		
-		if species == 'human':
-			bindFile = 'HS_lncRNA_DBS_matrix'
-			keggGeneFile = 'PathwayAnnotation/keggGene-hsa'
-			keggPathFile = 'PathwayAnnotation/keggPathway-hsa'
-			keggLinkFile = 'PathwayAnnotation/keggLink-hsa'
-			expFile = 'data/human_AD_TPM'
-			moduleFile = resultDir + 'HSlnc_module'
-			#gtfFile = 'Homo_sapiens.GRCh38.101.gtf'
-		elif species == 'mouse':
-			bindFile = 'MS_lncRNA_DBS_matrix'
-			keggGeneFile = 'PathwayAnnotation/keggGene-mmu'
-			keggPathFile = 'PathwayAnnotation/keggPathway-mmu'
-			keggLinkFile = 'PathwayAnnotation/keggLink-mmu'
-			expFile = 'data/mouse_AD_TPM'
-			moduleFile = resultDir + 'MSlnc_module'
-			#gtfFile = 'Mus_musculus.GRCm38.101.gtf'
-		
-		categoryFile = 'PathwayAnnotation/Kegg_category'
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],'',['h','t1=','t2=','m=','c=','f1=','f2=','f3=', 's=','o='])
+	except getopt.GetoptError:
+		print ('Usage: python eGRAM.py --t1 100 --t2 60 --m 5 --c 0.5 --f1 bindingMatrix --f2 expressionMatrix --f3 KeggCategory --s human --o output')
+		sys.exit(2)
+	for opt, arg in opts:
+		if opt == '--h':
+			print ('Usage: python eGRAM.py --t1 100 --t2 60 --m 5 --c 0.5 --f1 bindingMatrix --f2 expressionMatrix --f3 KeggCategory --s human --o output')
+			sys.exit(2)
+		elif opt == '--t1':
+			affiThres1 = int(arg)
+		elif opt == '--t2':
+			affiThres2 = int(arg)
+		elif opt == '--m':
+			moduleSize = int(arg)
+		elif opt == '--c':
+			corrThres = float(arg)
+		elif opt == '--f1':
+			bindFile = arg
+		elif opt == '--f2':
+			expFile = arg
+		elif opt == '--f3':
+			categoryFile = arg
+		elif opt == '--s':
+			species = arg.lower()
+		elif opt == '--o':
+			outFile = arg
 
-		kegg_gene, kegg_term, kegg_link, pathway_categ, totalGeneNum = read_kegg(keggGeneFile, keggPathFile, keggLinkFile, categoryFile)
+	resultDir = 'moduleResults/'
+	cytoscapeDir = 'cytoscapeFile/'
+	
+	if not os.path.exists(resultDir):
+		os.mkdir(resultDir)
+	if not os.path.exists(cytoscapeDir):
+		os.mkdir(cytoscapeDir)
 		
-		#gene_symbols, protein_genes = read_gtf(gtfFile)
-		
-		affinity, targets = read_binding(bindFile, kegg_gene)
-		
-		exp_df = read_exp(expFile, targets, affinity)
-		print(exp_df)
-		
-		identify_module(exp_df, 
-						affinity, 
-						moduleFile,
-						species,
-						kegg_gene, 
-						kegg_term, 
-						kegg_link,
-						pathway_categ,						
-						totalGeneNum,
-						categoryFile,
-						affiThres1,
-						affiThres2,
-						moduleSize,
-						corrThres)
-						
-		generate_cytosc_file(moduleFile, species, cytoscapeDir)
+	moduleFile = resultDir + outFile
+	
+	if species == 'human':
+		keggGeneFile = 'PathwayAnnotation/keggGene-hsa'
+		keggPathFile = 'PathwayAnnotation/keggPathway-hsa'
+		keggLinkFile = 'PathwayAnnotation/keggLink-hsa'
+	elif species == 'mouse':
+		keggGeneFile = 'PathwayAnnotation/keggGene-mmu'
+		keggPathFile = 'PathwayAnnotation/keggPathway-mmu'
+		keggLinkFile = 'PathwayAnnotation/keggLink-mmu'
+
+	kegg_gene, kegg_term, kegg_link, pathway_categ, totalGeneNum = read_kegg(keggGeneFile, keggPathFile, keggLinkFile, categoryFile)
+	
+	#gene_symbols, protein_genes = read_gtf(gtfFile)
+	
+	affinity, targets = read_binding(bindFile, kegg_gene)
+	
+	exp_df = read_exp(expFile, targets, affinity)
+	print('Gene expression matrix:')
+	print(exp_df)
+	
+	identify_module(exp_df, 
+					affinity, 
+					moduleFile,
+					species,
+					kegg_gene, 
+					kegg_term, 
+					kegg_link,
+					pathway_categ,						
+					totalGeneNum,
+					categoryFile,
+					affiThres1,
+					affiThres2,
+					moduleSize,
+					corrThres)
+					
+	generate_cytosc_file(moduleFile, species, cytoscapeDir)
