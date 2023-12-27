@@ -56,4 +56,4 @@ Please send comments and bug reports to JL.linjie@outlook.com.
 To obtain details about lncRNA/DNA binding prediction using LongTarget, please go to our website http://www.gaemons.net/LongTarget.
 
 # Citation
-Lin et al. Transposable elements rewire transcriptional regulation by mediating co-option between human/mouse-specific lncRNAs and target genes.
+Lin et al. Intrinsically linked lineage-specificity of transposable elements and lncRNAs reshapes transcriptional regulation species- and tissue-specifically.
