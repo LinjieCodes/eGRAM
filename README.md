@@ -2,7 +2,7 @@
 
 This directory contains the eGRAM program and data related to our work: "Unravelling intrinsically linked lineage-specificity of transposable elements, lncRNA genes, and transcriptional regulation".
 
-The eGRAM program is designed to identify gene modules comprising co-expressed genes and their regulatory lncRNAs based on both lncRNA/DNA binding interactions and gene expression correlations. The program is available in two versions: eGRAM.py and eGRAMv3R1.py. The eGRAM.py version is tailored for the analysis of bulk RNA-seq data, while the eGRAMv3R1.py version is specifically developed to handle scRNA-seq data.
+The eGRAM program is designed to identify gene modules comprising co-expressed genes and their regulatory lncRNAs based on both lncRNA/DNA binding interactions and gene expression correlations. **The program is available in two versions: eGRAM.py and eGRAMv3R1.py**. The eGRAM.py version is tailored for the analysis of bulk RNA-seq data, while the eGRAMv3R1.py version is specifically developed to handle scRNA-seq data.
 
 # <ins>**eGRAM.py for analyzing bulk RNA-seq data**</ins>
 The eGRAM.py program is a specialized tool designed to identify gene modules that consist of co-expressed genes and their associated regulatory lncRNAs. By integrating both lncRNA/DNA binding interactions and gene expression correlations, eGRAM.py offers a comprehensive approach to analyzing transcriptional regulation. Key features of eGRAM.py include its ability to process bulk RNA-seq data, making it suitable for studies involving tissue-specific or disease-related transcriptional regulation.
