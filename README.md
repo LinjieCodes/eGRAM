@@ -4,8 +4,8 @@ This directory contains the eGRAM program and data related to our work: "Unravel
 
 The eGRAM program is designed to identify gene modules comprising co-expressed genes and their regulatory lncRNAs based on both lncRNA/DNA binding interactions and gene expression correlations. The program is available in two versions: eGRAM.py and eGRAMv3R1.py. The eGRAM.py version is tailored for the analysis of bulk RNA-seq data, while the eGRAMv3R1.py version is specifically developed to handle scRNA-seq data.
 
-# <ins>**eGRAM for analyzing bulk RNA-seq data**</ins>
-The eGRAM program is a specialized tool designed to identify gene modules that consist of co-expressed genes and their associated regulatory lncRNAs. By integrating both lncRNA/DNA binding interactions and gene expression correlations, eGRAM offers a comprehensive approach to analyzing transcriptional regulation. Key features of eGRAM include its ability to process bulk RNA-seq data, making it suitable for studies involving tissue-specific or disease-related transcriptional regulation.
+# <ins>**eGRAM.py for analyzing bulk RNA-seq data**</ins>
+The eGRAM.py program is a specialized tool designed to identify gene modules that consist of co-expressed genes and their associated regulatory lncRNAs. By integrating both lncRNA/DNA binding interactions and gene expression correlations, eGRAM.py offers a comprehensive approach to analyzing transcriptional regulation. Key features of eGRAM.py include its ability to process bulk RNA-seq data, making it suitable for studies involving tissue-specific or disease-related transcriptional regulation.
 
 # Requirements
 1. **Python**: >=3.7.0
@@ -16,7 +16,7 @@ The eGRAM program is a specialized tool designed to identify gene modules that c
 
 4. **scipy**: >=1.7.3
 
-5. **OS**: the eGRAM code has been tested on Linux system.
+5. **OS**: the eGRAM.py code has been tested on Linux system.
 
 # Data
 1. **human_AD_TPM**, **mouse_AD_TPM**  --  the TPM-normalized gene expression matrixes derived from patients with Alzheimer's disease (in the lateral temporal lobe, N=12) and mouse models of Alzheimer's disease (in the hippocampus, N=14).
@@ -28,7 +28,7 @@ The eGRAM program is a specialized tool designed to identify gene modules that c
 4. **PathwayAnnotation**  --  the KEGG and wiki pathway annotation of human and mouse.
 
 # Usage
-Here is a command line to run the eGRAM program:
+Here is a command line to run the eGRAM.py program:
 
 ```
 python eGRAM.py --t1 100 --t2 60 --m 5 --c 0.5 --f1 HS_lncRNA_DBS_matrix --f2 data/human_AD_TPM --f3 KeggCategory --s human --o output
@@ -80,9 +80,9 @@ Key features of eGRAMv3 include:
 # Data
 1. **M_SPG_2025.csv**  --  the scRNA-seq data of mouse SPG cells.
 
-2. **Hmarker_HlncRNA_DBS.csv**  --  the DNA binding matrix of human-specific lncRNAs.
+2. **Hmarker_HlncRNA_DBS.csv**  --  the DNA binding matrix of human lncRNAs.
 
-3. **Mmarker_MlncRNA_DBS.csv**  --  the DNA binding matrix of mouse-specific lncRNAs.
+3. **Mmarker_MlncRNA_DBS.csv**  --  the DNA binding matrix of mouse lncRNAs.
 
 4. **PathwayAnnotation**  --  the KEGG and wiki pathway annotation of human and mouse.
 
