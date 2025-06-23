@@ -56,16 +56,16 @@ eGRAMv2 is the basic version and handles RNA-seq data. Employing heuristic searc
 Main parameters include (a) a lncRNA-DBS threshold, (b) a TF-DBS threshold, (c) a module size threshold, (d) species (1=human, 2=mouse), which determines using human or mouse KEGG/WikiPathways pathways, (e) a correlation threshold for lncRNA/target and lncRNA/lncRNA, (f) a correlation threshold for TF/target and TF/TF, (g) Pearson/Spearman that determines computing Pearson coefficient or Spearman coefficient as the measure of correlation, (h) a FDR threshold for determining significance of pathway enrichment (default 0.01), (i) a fold name for outputting files of results. All default parameter values are given in the code.
 
 eGRAMv2 performs the following steps. 
-    step 1 - read in user files and command line arguments
-    step 2 - read in kegg files and wikipathway files
-    step 3 - computing lncRNA-gene correlations, lncRNA-lncRNA correlations, and upon which, lncRNAsets
-    step 4 - computing TF-gene correlations, TF-TF correlations, and upon which, TFsets.
-    step 5 - generate shared lncRNA target sets upon df_lncRNA_gene_DBS and df_lncRNA_gene_corr
-    step 6 - generate shared TF target sets upon df_TF_gene_DBS and df_TF_gene_corr
-    step 7 - identify typically co-regulated modules and independently-regulated modules
-    step 8 - perform pathway enrichment analysis for module genes in df_path_module
-    step 9 - write results to files
-    step 10 - generate files for cytoscape
+step 1 - read in user files and command line arguments
+step 2 - read in kegg files and wikipathway files
+step 3 - computing lncRNA-gene correlations, lncRNA-lncRNA correlations, and upon which, lncRNAsets
+step 4 - computing TF-gene correlations, TF-TF correlations, and upon which, TFsets.
+step 5 - generate shared lncRNA target sets upon df_lncRNA_gene_DBS and df_lncRNA_gene_corr
+step 6 - generate shared TF target sets upon df_TF_gene_DBS and df_TF_gene_corr
+step 7 - identify typically co-regulated modules and independently-regulated modules
+step 8 - perform pathway enrichment analysis for module genes in df_path_module
+step 9 - write results to files
+step 10 - generate files for cytoscape
 
 eGRAMv2 can be run in a terminal or within an IDE (integrated development environment) such as Pycharm.  
 
